@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  node_app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_FOLDER_PREFIX=${AWS_FOLDER_PREFIX}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+    depends_on:
+      - meu_blog_db
+    networks:
+      - meu_blog_network
+
+  meu_blog_db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=blog_lucas_jandrey
+      - POSTGRES_USER=lucas
+      - POSTGRES_PASSWORD=Lucas1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - meu_blog_network
+
+  meu_blog_minio:
+    image: quay.io/minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
+    container_name: meu_blog_minio
+    ports:
+      - "9001:9001"
+      - "9002:9002"
+    networks:
+      - meu_blog_network
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=Lucas1234
+    volumes:
+      - ./docker/minio/data:/data
+    command: server /data --console-address ":9002" --address ":9001" --compat
+
+volumes:
+  postgres_data:
+
+networks:
+  meu_blog_network:
+    driver: bridge
