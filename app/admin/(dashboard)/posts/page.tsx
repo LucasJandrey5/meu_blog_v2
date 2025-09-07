@@ -1,14 +1,19 @@
+import Link from "next/link";
+import { prisma } from "@/lib/db";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PostActions } from "./_components/post-actions";
+import { PlusCircle, FileText, Eye, Clock } from "lucide-react";
+import { format } from "date-fns";
 
-import Link from "next/link"
-import { prisma } from "@/lib/db"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { PostActions } from "./_components/post-actions"
-import { PlusCircle, FileText, Eye, Clock } from "lucide-react"
-import { format } from "date-fns"
-
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 export default async function PostsPage() {
   const posts = await prisma.post.findMany({
@@ -18,13 +23,13 @@ export default async function PostsPage() {
           name: true,
           firstName: true,
           lastName: true,
-        }
-      }
+        },
+      },
     },
     orderBy: {
-      createdAt: "desc"
-    }
-  })
+      createdAt: "desc",
+    },
+  });
 
   return (
     <div className="space-y-8">
@@ -58,20 +63,27 @@ export default async function PostsPage() {
         <CardContent>
           {posts?.length > 0 ? (
             <div className="space-y-4">
-              {posts.map((post) => {
-                const authorName = post.author?.name || `${post.author?.firstName || ""} ${post.author?.lastName || ""}`.trim()
+              {posts.map((post: (typeof posts)[number]) => {
+                const authorName =
+                  post.author?.name ||
+                  `${post.author?.firstName || ""} ${post.author?.lastName || ""}`.trim();
                 return (
-                  <div key={post.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div
+                    key={post.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-3">
-                        <Link 
+                        <Link
                           href={`/admin/posts/edit/${post.id}`}
                           className="font-medium hover:text-primary transition-colors line-clamp-1"
                         >
                           {post.title}
                         </Link>
                         <div className="flex items-center gap-2">
-                          <Badge variant={post.published ? "default" : "secondary"}>
+                          <Badge
+                            variant={post.published ? "default" : "secondary"}
+                          >
                             {post.published ? "Published" : "Draft"}
                           </Badge>
                           {post.featured && (
@@ -79,7 +91,7 @@ export default async function PostsPage() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>By {authorName || "Unknown"}</span>
                         <span>•</span>
@@ -96,14 +108,13 @@ export default async function PostsPage() {
                         <span>
                           {post.published && post.publishedAt
                             ? `Published ${format(new Date(post.publishedAt), "MMM dd, yyyy")}`
-                            : `Created ${format(new Date(post.createdAt), "MMM dd, yyyy")}`
-                          }
+                            : `Created ${format(new Date(post.createdAt), "MMM dd, yyyy")}`}
                         </span>
                         {post.published && (
                           <>
                             <span>•</span>
-                            <Link 
-                              href={`/posts/${post.slug}`} 
+                            <Link
+                              href={`/posts/${post.slug}`}
                               target="_blank"
                               className="flex items-center gap-1 text-primary hover:underline"
                             >
@@ -123,7 +134,11 @@ export default async function PostsPage() {
                       {post.tags?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {post.tags.slice(0, 3).map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {tag}
                             </Badge>
                           ))}
@@ -136,14 +151,14 @@ export default async function PostsPage() {
                       )}
                     </div>
 
-                    <PostActions 
-                      postId={post.id} 
+                    <PostActions
+                      postId={post.id}
                       postTitle={post.title}
                       postSlug={post.slug}
                       isPublished={post.published}
                     />
                   </div>
-                )
+                );
               })}
             </div>
           ) : (
@@ -154,7 +169,8 @@ export default async function PostsPage() {
               <div>
                 <h4 className="text-lg font-medium">No posts yet</h4>
                 <p className="text-muted-foreground mt-2">
-                  Create your first blog post to get started sharing your thoughts and insights.
+                  Create your first blog post to get started sharing your
+                  thoughts and insights.
                 </p>
               </div>
               <Link href="/admin/posts/new">
@@ -168,5 +184,5 @@ export default async function PostsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
