@@ -1,121 +1,122 @@
+"use client";
 
-"use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
-import { 
-  Save, 
-  Eye, 
-  Upload, 
-  X, 
-  Plus, 
-  FileText, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Save,
+  Eye,
+  Upload,
+  X,
+  Plus,
+  FileText,
   Settings,
   Image as ImageIcon,
-  Loader2
-} from "lucide-react"
-import { MarkdownRenderer } from "@/components/markdown-renderer"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+  Loader2,
+} from "lucide-react";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Post as PostType } from "@prisma/client";
 
 interface PostEditorProps {
-  post?: {
-    id: string
-    title: string
-    slug: string
-    summary?: string | null
-    content: string
-    published: boolean
-    featured: boolean
-    featuredImage?: string | null
-    tags: string[]
-  } | null
+  post?: PostType;
 }
 
 export function PostEditor({ post }: PostEditorProps) {
-  const [title, setTitle] = useState(post?.title || "")
-  const [summary, setSummary] = useState(post?.summary || "")
-  const [content, setContent] = useState(post?.content || "")
-  const [published, setPublished] = useState(post?.published || false)
-  const [featured, setFeatured] = useState(post?.featured || false)
-  const [featuredImage, setFeaturedImage] = useState(post?.featuredImage || "")
-  const [tags, setTags] = useState<string[]>(post?.tags || [])
-  const [newTag, setNewTag] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const router = useRouter()
+  const [title, setTitle] = useState(post?.title || "");
+  const [summary, setSummary] = useState(post?.summary || "");
+  const [content, setContent] = useState(post?.content || "");
+  const [published, setPublished] = useState(post?.published || false);
+  const [featured, setFeatured] = useState(post?.featured || false);
+  const [featuredImage, setFeaturedImage] = useState(
+    post?.featuredImage || null
+  );
+  const [coverImage, setCoverImage] = useState(post?.coverImageId || null);
+  const [tags, setTags] = useState<string[]>(post?.tags || []);
+  const [newTag, setNewTag] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const router = useRouter();
 
-  const isEditing = !!post?.id
+  const isEditing = !!post?.id;
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
-      return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB')
-      return
+      toast.error("File size must be less than 5MB");
+      return;
     }
 
-    setIsUploading(true)
+    setIsUploading(true);
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
+      const response = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Upload failed')
+        throw new Error("Upload failed");
       }
 
-      const data = await response.json()
-      setFeaturedImage(data.url)
-      toast.success('Image uploaded successfully')
+      const data = await response.json();
+      setCoverImage(data.coverImage);
+      toast.success("Image uploaded successfully");
     } catch (error) {
-      console.error('Upload error:', error)
-      toast.error('Failed to upload image')
+      console.error("Upload error:", error);
+      toast.error("Failed to upload image");
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const handleAddTag = () => {
-    const trimmedTag = newTag.trim()
+    const trimmedTag = newTag.trim();
     if (trimmedTag && !tags.includes(trimmedTag)) {
-      setTags([...tags, trimmedTag])
-      setNewTag("")
+      setTags([...tags, trimmedTag]);
+      setNewTag("");
     }
-  }
+  };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove))
-  }
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
-      toast.error('Title and content are required')
-      return
+      toast.error("Title and content are required");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
       const postData = {
@@ -125,43 +126,45 @@ export function PostEditor({ post }: PostEditorProps) {
         published,
         featured,
         featuredImage: featuredImage || null,
-        tags
-      }
+        tags,
+      };
 
       const response = await fetch(
-        isEditing ? `/api/posts/${post.id}` : '/api/posts',
+        isEditing ? `/api/posts/${post.id}` : "/api/posts",
         {
-          method: isEditing ? 'PUT' : 'POST',
+          method: isEditing ? "PUT" : "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(postData),
         }
-      )
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to save post')
+        throw new Error("Failed to save post");
       }
 
-      const savedPost = await response.json()
-      toast.success(isEditing ? 'Post updated successfully' : 'Post created successfully')
-      
-      router.push('/admin/posts')
-      router.refresh()
+      const savedPost = await response.json();
+      toast.success(
+        isEditing ? "Post updated successfully" : "Post created successfully"
+      );
+
+      router.push("/admin/posts");
+      router.refresh();
     } catch (error) {
-      console.error('Save error:', error)
-      toast.error('Failed to save post')
+      console.error("Save error:", error);
+      toast.error("Failed to save post");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newTag.trim()) {
-      e.preventDefault()
-      handleAddTag()
+    if (e.key === "Enter" && newTag.trim()) {
+      e.preventDefault();
+      handleAddTag();
     }
-  }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -205,8 +208,12 @@ export function PostEditor({ post }: PostEditorProps) {
               <Label htmlFor="content">Content</Label>
               <Tabs defaultValue="write" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="write" onClick={() => {}}>Write</TabsTrigger>
-                  <TabsTrigger value="preview" onClick={() => {}}>Preview</TabsTrigger>
+                  <TabsTrigger value="write" onClick={() => {}}>
+                    Write
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" onClick={() => {}}>
+                    Preview
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="write" className="space-y-2">
                   <Textarea
@@ -218,7 +225,8 @@ export function PostEditor({ post }: PostEditorProps) {
                     className="font-mono text-sm"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Supports Markdown formatting including code blocks, tables, and more.
+                    Supports Markdown formatting including code blocks, tables,
+                    and more.
                   </p>
                 </TabsContent>
                 <TabsContent value="preview" className="space-y-2">
@@ -246,20 +254,20 @@ export function PostEditor({ post }: PostEditorProps) {
             <CardTitle className="text-lg">Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={isSaving || !title.trim() || !content.trim()}
               className="w-full"
             >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEditing ? 'Updating...' : 'Creating...'}
+                  {isEditing ? "Updating..." : "Creating..."}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {isEditing ? 'Update Post' : 'Create Post'}
+                  {isEditing ? "Update Post" : "Create Post"}
                 </>
               )}
             </Button>
@@ -291,10 +299,7 @@ export function PostEditor({ post }: PostEditorProps) {
                   Make this post visible on the blog
                 </p>
               </div>
-              <Switch
-                checked={published}
-                onCheckedChange={setPublished}
-              />
+              <Switch checked={published} onCheckedChange={setPublished} />
             </div>
 
             <Separator />
@@ -306,10 +311,7 @@ export function PostEditor({ post }: PostEditorProps) {
                   Highlight this post on the homepage
                 </p>
               </div>
-              <Switch
-                checked={featured}
-                onCheckedChange={setFeatured}
-              />
+              <Switch checked={featured} onCheckedChange={setFeatured} />
             </div>
           </CardContent>
         </Card>
@@ -323,11 +325,11 @@ export function PostEditor({ post }: PostEditorProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {featuredImage ? (
+            {coverImage ? (
               <div className="space-y-3">
                 <div className="relative aspect-video overflow-hidden rounded-lg border">
                   <img
-                    src={featuredImage}
+                    src={"http://localhost:3000/api/images?id=" + coverImage}
                     alt="Featured image preview"
                     className="w-full h-full object-cover"
                   />
@@ -335,7 +337,7 @@ export function PostEditor({ post }: PostEditorProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setFeaturedImage("")}
+                  onClick={() => setCoverImage(null)}
                   className="w-full"
                 >
                   <X className="h-4 w-4 mr-2" />
@@ -350,7 +352,12 @@ export function PostEditor({ post }: PostEditorProps) {
                     Upload a featured image for your post
                   </p>
                   <Label htmlFor="image-upload">
-                    <Button variant="outline" size="sm" asChild disabled={isUploading}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      disabled={isUploading}
+                    >
                       <span>
                         {isUploading ? (
                           <>
@@ -386,9 +393,7 @@ export function PostEditor({ post }: PostEditorProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Tags</CardTitle>
-            <CardDescription>
-              Help readers find your content
-            </CardDescription>
+            <CardDescription>Help readers find your content</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -399,8 +404,8 @@ export function PostEditor({ post }: PostEditorProps) {
                 onKeyDown={handleKeyDown}
                 className="flex-1"
               />
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleAddTag}
                 disabled={!newTag.trim()}
               >
@@ -411,7 +416,11 @@ export function PostEditor({ post }: PostEditorProps) {
             {tags?.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
                     {tag}
                     <button
                       onClick={() => handleRemoveTag(tag)}
@@ -427,5 +436,5 @@ export function PostEditor({ post }: PostEditorProps) {
         </Card>
       </div>
     </div>
-  )
+  );
 }

@@ -14,5 +14,7 @@ export function createS3Client() {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
     },
+    forcePathStyle: true,
+    endpoint: process.env.AWS_ENDPOINT || "http://minio:9001",
   });
 }

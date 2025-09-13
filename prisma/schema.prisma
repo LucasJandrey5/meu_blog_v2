@@ -84,7 +84,10 @@ model Post {
 
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
-  
+
+  coverImage Image? @relation(fields: [coverImageId], references: [id])
+  coverImageId String?
+
   views    PostView[]
 
   @@map("posts")
@@ -102,4 +105,18 @@ model PostView {
   
   @@unique([postId, fingerprint])
   @@map("post_views")
+}
+
+model Image {
+  id String @id @default(cuid())
+  path String
+  size Int
+  mimeType String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts    Post[]
+
+  @@map("images")
 }

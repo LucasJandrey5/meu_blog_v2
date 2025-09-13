@@ -1,15 +1,14 @@
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { PostEditor } from "../../_components/post-editor";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-import { notFound } from "next/navigation"
-import { prisma } from "@/lib/db"
-import { PostEditor } from "../../_components/post-editor"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 interface EditPostPageProps {
-  params: { id: string }
+  params: { id: string };
 }
 
 async function getPost(id: string) {
@@ -21,23 +20,24 @@ async function getPost(id: string) {
           name: true,
           firstName: true,
           lastName: true,
-        }
-      }
-    }
-  })
+        },
+      },
+      coverImage: true,
+    },
+  });
 
   if (!post) {
-    return null
+    return null;
   }
 
-  return post
+  return post;
 }
 
 export default async function EditPostPage({ params }: EditPostPageProps) {
-  const post = await getPost(params.id)
+  const post = await getPost(params.id);
 
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -61,5 +61,5 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
       {/* Editor */}
       <PostEditor post={post} />
     </div>
-  )
+  );
 }

@@ -39,9 +39,9 @@ services:
     networks:
       - meu_blog_network
 
-  meu_blog_minio:
+  minio:
     image: quay.io/minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
-    container_name: meu_blog_minio
+    container_name: minio
     ports:
       - "9001:9001"
       - "9002:9002"

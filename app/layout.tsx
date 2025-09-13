@@ -1,19 +1,29 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Providers } from "@/components/providers";
+import { ClientHeader } from "@/components/client-header";
+import { Footer } from "@/components/footer";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { Providers } from "@/components/providers"
-import { ClientHeader } from "@/components/client-header"
-import { Footer } from "@/components/footer"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Blog Lucas Jandrey - Full Stack Developer",
-  description: "Personal blog of Lucas Jandrey, a passionate full stack developer sharing insights on React, Next.js, Laravel, AWS and modern web development.",
-  keywords: ["Lucas Jandrey", "Full Stack Developer", "React", "Next.js", "Laravel", "AWS", "Web Development", "JavaScript", "TypeScript"],
+  description:
+    "Personal blog of Lucas Jandrey, a passionate full stack developer sharing insights on React, Next.js, Laravel, AWS and modern web development.",
+  keywords: [
+    "Lucas Jandrey",
+    "Full Stack Developer",
+    "React",
+    "Next.js",
+    "Laravel",
+    "AWS",
+    "Web Development",
+    "JavaScript",
+    "TypeScript",
+  ],
   authors: [{ name: "Lucas Jandrey", url: "https://lucasjandrey.com.br" }],
   creator: "Lucas Jandrey",
   openGraph: {
@@ -21,13 +31,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://blog.lucasjandrey.com.br",
     title: "Blog Lucas Jandrey - Full Stack Developer",
-    description: "Personal blog of Lucas Jandrey, sharing insights on web development, tutorials, and project case studies.",
+    description:
+      "Personal blog of Lucas Jandrey, sharing insights on web development, tutorials, and project case studies.",
     siteName: "Blog Lucas Jandrey",
   },
   twitter: {
     card: "summary_large_image",
     title: "Blog Lucas Jandrey - Full Stack Developer",
-    description: "Personal blog of Lucas Jandrey, sharing insights on web development.",
+    description:
+      "Personal blog of Lucas Jandrey, sharing insights on web development.",
     creator: "@lucasjandrey",
   },
   robots: {
@@ -41,14 +53,14 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-}
+};
 
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -56,13 +68,11 @@ export default async function RootLayout({
         <Providers session={session}>
           <div className="min-h-screen bg-background flex flex-col">
             <ClientHeader />
-            <main className="flex-1">
-              {children}
-            </main>
+            <main className="flex-1">{children}</main>
             <Footer />
           </div>
         </Providers>
       </body>
     </html>
-  )
+  );
 }
