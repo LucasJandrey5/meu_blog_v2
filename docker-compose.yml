@@ -59,4 +59,4 @@ volumes:
 
 networks:
   meu_blog_network:
-    driver: bridge
+    external: true

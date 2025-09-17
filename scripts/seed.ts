@@ -1,15 +1,14 @@
+import { PrismaClient } from "@prisma/client";
+import bcryptjs from "bcryptjs";
 
-import { PrismaClient } from "@prisma/client"
-import bcryptjs from "bcryptjs"
-
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting database seed...")
+  console.log("🌱 Starting database seed...");
 
   // Create admin users
-  const hashedPassword = await bcryptjs.hash("admin123", 12)
-  const hashedTestPassword = await bcryptjs.hash("johndoe123", 12)
+  const hashedPassword = await bcryptjs.hash("admin123", 12);
+  const hashedTestPassword = await bcryptjs.hash("lucas1234", 12);
 
   // Create admin user
   const adminUser = await prisma.user.upsert({
@@ -22,29 +21,16 @@ async function main() {
       lastName: "Jandrey",
       name: "Lucas Jandrey",
       role: "admin",
-    }
-  })
-
-  // Create test user (required by system guidelines)
-  const testUser = await prisma.user.upsert({
-    where: { email: "john@doe.com" },
-    update: {},
-    create: {
-      email: "john@doe.com",
-      password: hashedTestPassword,
-      firstName: "John",
-      lastName: "Doe",
-      name: "John Doe",
-      role: "admin",
-    }
-  })
+    },
+  });
 
   // Sample blog posts
   const samplePosts = [
     {
       title: "Building Modern Web Applications with Next.js and React",
       slug: "building-modern-web-apps-nextjs-react",
-      summary: "Learn how to create scalable and performant web applications using Next.js 14, React 18, and modern development practices.",
+      summary:
+        "Learn how to create scalable and performant web applications using Next.js 14, React 18, and modern development practices.",
       content: `# Building Modern Web Applications with Next.js and React
 
 Welcome to my first blog post! 🚀 Today, I want to share my insights on building modern web applications using Next.js and React.
@@ -105,13 +91,20 @@ Next.js continues to evolve and remains one of the best choices for building mod
 What's your experience with Next.js? I'd love to hear your thoughts!`,
       published: true,
       featured: true,
-      tags: ["Next.js", "React", "Web Development", "JavaScript", "Performance"],
+      tags: [
+        "Next.js",
+        "React",
+        "Web Development",
+        "JavaScript",
+        "Performance",
+      ],
       readTime: 5,
     },
     {
       title: "Clean Code Principles Every Developer Should Know",
       slug: "clean-code-principles-every-developer",
-      summary: "Explore essential clean code principles that will make your code more maintainable, readable, and professional.",
+      summary:
+        "Explore essential clean code principles that will make your code more maintainable, readable, and professional.",
       content: `# Clean Code Principles Every Developer Should Know
 
 As developers, we spend more time reading code than writing it. That's why writing clean, maintainable code is crucial for both personal and team success.
@@ -211,13 +204,20 @@ Writing clean code is a skill that improves with practice. Start applying these 
 Remember: code is written once but read many times. Make it count! 💪`,
       published: true,
       featured: false,
-      tags: ["Clean Code", "Best Practices", "JavaScript", "Programming", "Software Development"],
+      tags: [
+        "Clean Code",
+        "Best Practices",
+        "JavaScript",
+        "Programming",
+        "Software Development",
+      ],
       readTime: 6,
     },
     {
       title: "My Journey from Civil Engineering to Software Development",
       slug: "journey-civil-engineering-to-software-development",
-      summary: "The story of how I transitioned from studying civil engineering to becoming a passionate full-stack developer.",
+      summary:
+        "The story of how I transitioned from studying civil engineering to becoming a passionate full-stack developer.",
       content: `# My Journey from Civil Engineering to Software Development
 
 Every developer has a unique story of how they got into programming. Today, I want to share mine – a journey that took me from civil engineering to discovering my true passion in software development.
@@ -287,10 +287,16 @@ My journey from civil engineering to software development taught me that it's ne
 What's your development story? I'd love to hear about your journey in the comments below!`,
       published: true,
       featured: true,
-      tags: ["Career Change", "Personal Story", "Software Development", "Journey", "Motivation"],
+      tags: [
+        "Career Change",
+        "Personal Story",
+        "Software Development",
+        "Journey",
+        "Motivation",
+      ],
       readTime: 8,
-    }
-  ]
+    },
+  ];
 
   // Create sample posts
   for (const postData of samplePosts) {
@@ -301,21 +307,20 @@ What's your development story? I'd love to hear about your journey in the commen
         ...postData,
         publishedAt: new Date(),
         authorId: adminUser.id,
-      }
-    })
+      },
+    });
   }
 
-  console.log("✅ Database seeded successfully!")
-  console.log(`📝 Created ${samplePosts.length} sample posts`)
-  console.log(`👤 Created admin user: ${adminUser.email}`)
-  console.log(`🧪 Created test user: ${testUser.email}`)
+  console.log("✅ Database seeded successfully!");
+  console.log(`📝 Created ${samplePosts.length} sample posts`);
+  console.log(`👤 Created admin user: ${adminUser.email}`);
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
