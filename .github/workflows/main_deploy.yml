@@ -1,7 +1,7 @@
 name: CI/CD Pipeline - Next.js Blog
 on:
   push:
-    branches: develop
+    branches: main
 
 env:
   REGISTRY: ghcr.io
@@ -10,7 +10,7 @@ env:
 jobs:
   build_nextjs:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
       packages: write
@@ -46,7 +46,7 @@ jobs:
   deploy:
     needs: [build_nextjs]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to production
         uses: appleboy/ssh-action@v0.1.7
