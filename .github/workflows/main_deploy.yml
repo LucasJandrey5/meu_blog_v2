@@ -55,7 +55,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            cd ~/meu-blog/
+            cd ~/my_blog/
 
             # Limpeza de containers parados e imagens não utilizadas
             docker container prune -f
@@ -74,6 +74,6 @@ jobs:
 
             envsubst < docker-stack.yml.template > docker-stack.yml
 
-            docker stack deploy -c ~/meu-blog/docker-stack.yml app
+            docker stack deploy -c ~/my_blog/docker-stack.yml app
 
             echo "Deploy concluído com sucesso!"
